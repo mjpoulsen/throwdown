@@ -7,7 +7,6 @@ to the postorder traversal of the other tree.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "KindredSpirits.h"
 
 typedef struct node
 {
