@@ -4,7 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include "Fibonacci.h"
+
+typedef struct HugeInteger
+{
+	// a dynamically allocated array to hold the digits of a huge integer
+	int *digits;
+
+	// the number of digits in the huge integer (approx. equal to array length)
+	int length;
+} HugeInteger;
 
 HugeInteger *hugeAdd(HugeInteger *p, HugeInteger *q)
 {
