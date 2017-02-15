@@ -1,5 +1,10 @@
 // KindredSpirits project from CS1.
 
+/*
+Two binary trees are kindred spirits if the preorder traversal of one of the trees corresponds
+to the postorder traversal of the other tree.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "KindredSpirits.h"
