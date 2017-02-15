@@ -1,0 +1,129 @@
+// Basic Linked Lists Concepts and Actions
+// Language: C
+
+
+/* 
+Supports the following actions:
+
+	- Create node
+	- Destroy List
+	- Tail Insert
+	- Delete from Head
+
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#define EMPTY_LIST_ERR INT_MIN
+
+// Standard Node struct
+typedef struct node
+{
+	int val;
+	struct node *next;
+} node;
+
+// Linked List struct with Head and Tail, always for quicker access.
+typedef struct LinkedList
+{
+	node *head;
+	node *tail;
+} LinkedList;
+
+
+// Allocates memory for a single node and sets its pointer to NULL.
+node *createNode(int val)
+{
+	node *n = malloc(sizeof(node));
+
+	// Guards against out of memory issues and prevents segmentation faults
+	// AND NULL pointer exceptions.
+	if (n == NULL)
+		return NULL;
+
+	n->val = val;
+	n->next = NULL;
+
+	return n;
+}
+
+// Allocates memory for LinkedList struct.
+LinkedList *createList(void)
+{
+	LinkedList *ptr = calloc(1, sizeof(LinkedList));
+
+	// Guards against out of memory issues and prevents segmentation faults
+	// AND NULL pointer exceptions.
+	if (ptr == NULL)
+		return NULL;
+
+	return ptr;
+}
+
+node *recursiveDestroyList(node *head)
+{
+	// Base case.
+	if (head == NULL)
+		return NULL;
+
+	recursiveDestroyList(head->next);
+	free(head);
+
+	return NULL;
+}
+
+LinkedList *destroyLinkedList(LinkedList *list)
+{
+	// Base case.
+	if (list == NULL)
+		return NULL;
+
+	// Helper function to delegate node deletion.
+	recursiveDestroyList(list->head);
+	free(list);
+
+	return NULL;
+}
+
+void tailInsert(LinkedList *list, int val)
+{
+	// Prevents segmentation faults and NULL pointer exceptions.
+	if (list == NULL)
+		return;
+
+	if (list->tail == NULL)
+	{
+		list->head = list->tail = createNode(val);
+	}
+	else
+	{
+		list->tail->next = createNode(val);
+		list->tail = list->tail->next;
+	}
+}
+
+void destroyNode(node *ptr)
+{
+	free(ptr);
+}
+
+int removeHead(LinkedList *list)
+{
+	int retval;
+	node *temp;
+
+	// Checks for list and returns error if empty.
+	// Also, prevents segmentation faults and NULL pointer excepetions
+	if (list == NULL || list->head == NULL)
+		return EMPTY_LIST_ERR;
+
+	retval = list->head->data;
+
+	temp = list->head;
+	list->head = list->head->next;
+	destroyNode(temp);
+
+	return retval;
+}
