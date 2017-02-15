@@ -1,0 +1,160 @@
+// Basic Queue Structure with Linked Lists Concepts and Actions
+// Language: C
+
+// A Quese data structure supports information as first in, first out (FIFO).
+
+/* 
+Supports the following actions:
+
+	- Create node
+
+*/
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#define EMPTY_QUEUE_ERR INT_MIN;
+
+// Standard Node struct
+typedef struct node
+{
+	int val;
+	struct node *next;
+} node;
+
+// Linked List struct with Head and Tail, always for quicker access.
+typedef struct LinkedList
+{
+	node *head;
+	node *tail;
+} LinkedList;
+
+// Standard Queue struct with Linked List
+typedef struct Queue
+{
+	LinkedList *list;
+	int count;
+} Queue;
+
+// Allocates memory for a single node and sets its pointer to NULL.
+node *createNode(int val)
+{
+	node *n = malloc(sizeof(node));
+
+	// Guards against out of memory issues and prevents segmentation faults
+	// AND NULL pointer exceptions.
+	if (n == NULL)
+		return NULL;
+
+	n->val = val;
+	n->next = NULL;
+
+	return n;
+}
+
+// Allocates memory for LinkedList struct.
+LinkedList *createList(void)
+{
+	LinkedList *ptr = calloc(1, sizeof(LinkedList));
+
+	// Guards against out of memory issues and prevents segmentation faults
+	// AND NULL pointer exceptions.
+	if (ptr == NULL)
+		return NULL;
+
+	return ptr;
+}
+
+void tailInsert(LinkedList *list, int val)
+{
+	// Prevents segmentation faults and NULL pointer exceptions.
+	if (list == NULL)
+		return;
+
+	if (list->tail == NULL)
+	{
+		list->head = list->tail = createNode(val);
+	}
+	else
+	{
+		list->tail->next = createNode(val);
+		list->tail = list->tail->next;
+	}
+}
+
+int removeHead(LinkedList *list)
+{
+	int retval;
+	node *temp;
+
+	// Checks for list and returns error if empty.
+	// Also, prevents segmentation faults and NULL pointer excepetions
+	if (list == NULL || list->head == NULL)
+		return EMPTY_LIST_ERR;
+
+	retval = list->head->data;
+
+	temp = list->head;
+	list->head = list->head->next;
+	destroyNode(temp);
+
+	return retval;
+}
+
+// QUEUE Functions
+
+// Returns
+// 0: false
+// 1: true
+int isEmpty(Queue *q)
+{
+	// Short circuit check for nonexistent queue and list.
+	// Also, prevents segmentation fault if return statement checks nonexistent location.
+	if (q == NULL || q->list == NULL)
+		return 1;
+
+	return (q->list->head == NULL);
+}
+
+// When using linked lists, we might (naively?) assume there is always room for more.
+int isFull(Queue *q)
+{
+	return 0;
+}
+
+// Insert element at back of queue (using tail insertion).
+void enqueue(Queue *q, int data)
+{
+	tailInsert(q->list, data);
+	q->count++;
+}
+
+// Remove front of queue (using head removal)
+int dequeue(Queue *q)
+{
+	if (isEmpty(q))
+		return EMPTY_QUEUE_ERR;
+
+	q->count--;
+	return removeHead(q->list);
+}
+
+// Peek at the front of the queue without dequeueing
+int peek(Queue *q)
+{
+	if (isEmpty(q))
+		return EMPTY_QUEUE_ERR;
+
+	return q->list->head->data;
+}
+
+// Create the queue. Initialize it's internal linked list.
+Queue *createQueue(void)
+{
+	Queue *q = calloc(1, sizeof(Queue));
+	q->list = createList();
+
+	return q;
+}
