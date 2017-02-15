@@ -1,0 +1,105 @@
+// N-Squared Sorting Algorithms
+
+/*
+These sorts include
+
+	- bubble sort
+	- insertion sort
+	- selection sort
+
+	These are n-squared sorts because their worse case or Big-Oh runtime averages to n^2.
+	Their best case runtime is O(n), and on average they are O(n^2).
+
+	They have a slower runtime because each pass requires them to traverse the data set 
+	at least once. If a change is made, they must traverse the set another time to confirm
+	the set is sorted or unsorted.
+
+	All algorithms sort from lowest to highest value and require an array pointer as well as the length of the array.
+
+*/
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// Basic swap logic with temp variable
+// This is actually one of the most useful helper functions for sorting.
+void swap(int *array, int i, int j)
+{
+	int temp = array[i];
+	array[i] = array[j];
+	array[j] = temp;
+}
+
+/*
+	Traverses an array and finds the smallest value. Switches the smallest value with the first position
+	within the array.
+*/
+void selection_sort(int *array, int n)
+{
+	int j, start, indexOfMin;
+
+	for (start = 0; start < n; start++)
+	{
+		indexOfMin = start;
+
+		for (j = start + 1; j < n; j++)
+			if (array[j] < array[indexOfMin])
+				indexOfMin = j;
+
+		swap(array, start, indexOfMin);
+	}
+}
+
+/*
+	Swaps current index with array's already sorted partition.
+*/
+void insertion_sort(int *array, int n)
+{
+	int i, val, gap;
+
+	for (gap = 1; gap < n; gap++)
+	{
+		val = array[gap];
+
+		for (i = gap; i > 0 && val < array[i-1]; i--)
+		{
+			array[i] = array[i-1];
+		}
+
+		array[i] = val;
+	}
+}
+
+// Compares the current index with the index to its right. If larger, they swap positions
+// Continues process until the array is sorted.
+void bubble_sort(int *array, int n)
+{
+	int i, j = 0, temp, swapped = 1;
+
+	while (swapped)
+	{
+		swapped = 0;
+
+		for (i = 0; i < n - 1 - j; i++)
+		{
+			if (array[i] > array[i + 1])
+			{
+				swap(array, i, i + 1);
+				swapped = 1;
+			}
+		}
+		++j;
+	}
+}
+
+int is_sorted(int *array, int n)
+{
+	int i;
+
+	for (i = 0; i < n - 1; i++)
+		if (array[i] > array[i + 1])
+			return 0;
+
+	return 1;
+}
