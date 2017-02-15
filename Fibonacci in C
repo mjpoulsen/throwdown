@@ -1,0 +1,297 @@
+// CS1 Assignment
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+#include "Fibonacci.h"
+
+HugeInteger *hugeAdd(HugeInteger *p, HugeInteger *q)
+{
+  HugeInteger *array_sum = malloc(sizeof(HugeInteger));
+  int length, i, carry = 0, temp_sum = 0;
+
+  // In order to add the two integers, I first need to find the length of the
+  // largest integer.
+  if (p == NULL && q == NULL)
+  {
+    free(array_sum);
+    return NULL;
+  }
+  else if (p == NULL && q != NULL)
+    length = q->length;
+  else if (p != NULL & q == NULL)
+    length = p->length;
+  else
+  {
+    if (p->length >= q->length)
+      length = p->length;
+    else
+      length = q->length;
+  }
+
+  // Allocates enough memory for two integers sum.
+  array_sum->digits = calloc(length + 1, sizeof(unsigned int));
+
+  /*
+  Loop's Logic:
+
+    1. Adds current indices and stores sum temp variable.
+    2. If temp_sum is greater than 9, change carry variable to 1 and
+       mod temp_sum by 10 to store digit.
+    3. Adds temp_sum digit to current index; third if-statement checks for
+       a carry variable and also adds temp_sum to any value that might already
+       be stored from a previous carry.
+  */
+  for (i = 0; i < length; i++)
+  {
+    if (p->length > i && q->length > i)
+      temp_sum = p->digits[i] + q->digits[i];
+    else if (p->length <= i && q->length > i)
+      temp_sum = q->digits[i];
+    else if (p->length > i && q->length <= i)
+      temp_sum = p->digits[i];
+
+    if (temp_sum > 9)
+    {
+      carry = 1;
+      temp_sum = temp_sum % 10;
+    }
+
+    if (temp_sum + array_sum->digits[i] > 9 && carry == 1)
+      array_sum->digits[i] = (array_sum->digits[i] + temp_sum) % 10;
+    else if (temp_sum + array_sum->digits[i] > 9 && carry != 1)
+    {
+      array_sum->digits[i] = (array_sum->digits[i] + temp_sum) % 10;
+      carry = 1;
+    }
+    else
+      array_sum->digits[i] = array_sum->digits[i] + temp_sum;
+
+    // Reset carry
+    if (carry == 1)
+    {
+      array_sum->digits[i+1] = carry;
+      carry = 0;
+    }
+  }
+
+  // Because the DMA for the sum's array has +1, the sum's length needs to be
+  // adjusted if the last index is 0.
+  if (array_sum->digits[length] == 0)
+    array_sum->length = length;
+  else
+    array_sum->length = length + 1;
+
+  return array_sum;
+
+}
+
+HugeInteger *hugeDestroyer(HugeInteger *p)
+{
+  if (p->digits == NULL || p == NULL)
+    return NULL;
+  else
+  {
+    free(p->digits);
+    free(p);
+
+    return NULL;
+  }
+}
+
+HugeInteger *parseString(char *str)
+{
+  HugeInteger *i = malloc(sizeof(HugeInteger));
+  unsigned int unsign_int;
+  int len, k, pow = 1;
+
+  if (i == NULL)
+    return NULL;
+
+  // Finds length of string
+  if (str != NULL)
+  {
+    free(i);
+    len = strlen(str);
+    i->length = len;
+  }
+
+  // If string is empty assign digits to 0, otherwise, add correct values
+  // to digits.
+  if (str == '\0')
+    i->digits = 0;
+  else if (str == NULL)
+  {
+    free(i);
+    i->digits = NULL;
+    return NULL;
+  }
+  else
+  {
+    i->digits = malloc(sizeof(int) * len);
+
+    for (k = 1; k <= len; k++)
+      i->digits[len - k] = str[k - 1] - 48;
+  }
+
+  return i;
+}
+
+HugeInteger *parseInt(unsigned int n)
+{
+  HugeInteger *i = malloc(sizeof(HugeInteger));
+  int k, pow = 1, len = 0;
+  unsigned int num;
+
+  // Checks to see if memory was allocated for HugeInteger
+  if (i == NULL)
+    return NULL;
+
+  // Assigns n to num so I do not change the original integer
+  num = n;
+
+  // Finds the length of the unsigned int
+  while (num >= 0)
+  {
+    num = n / pow;
+    len++;
+
+    // Stops loop once the last digit is found
+    if (num < 10)
+      break;
+
+    // Increments power by ten to jump from digit to digit
+    pow*=10;
+  }
+
+  // DMA for length of integer
+  i->digits = malloc(sizeof(int) * len);
+
+  // Places each digit within a different array slot.
+  for (k = 1; k <= len; k++)
+  {
+    i->digits[len - k] = n / pow % 10;
+    pow/=10;
+  }
+
+  // Passes len to struct's length
+  i->length = len;
+
+  // Return pointer
+  return i;
+
+}
+
+unsigned int *toUnsignedInt(HugeInteger *p)
+{
+  unsigned int unsign_int = 0, *q = malloc(sizeof(unsigned int));
+  int i, unsign_int_flag = 0, pow = 1;
+
+  if (p->digits == NULL)
+  {
+    free(q);
+    return NULL;
+  }
+
+  // Adds the indices of the digits array
+  for (i = 0; i < p->length; i++)
+  {
+    unsign_int+= p->digits[i] * pow;
+
+    /*
+    This if-statement stops the loop when the number stored within p->digits
+    is larger than UINT_MAX. The flag is defined as INT_MIN because the
+    integers stored within p->digits should never be negative.
+    */
+    if (unsign_int < unsign_int_flag)
+    {
+      unsign_int_flag = INT_MIN;
+      break;
+    }
+
+    // Updates the flag for the if-statement above
+    unsign_int_flag = unsign_int;
+    pow*=10;
+  }
+
+  *q = unsign_int;
+
+  // Returns the appropriate response
+  if (unsign_int_flag == INT_MIN)
+  {
+    free(q);
+    return NULL;
+  }
+  else
+    return q;
+
+}
+
+HugeInteger *fib(int n)
+{
+  HugeInteger *i = malloc(sizeof(HugeInteger));
+  HugeInteger *fib1 = malloc(sizeof(HugeInteger));
+  HugeInteger *fib2 = malloc(sizeof(HugeInteger));
+
+  int k, len = 0;
+  unsigned int *temp1 = NULL, temp2;
+
+  if (i == NULL || fib1 == NULL || fib2 == NULL)
+    return NULL;
+
+  i = parseInt(n);
+
+  i->digits = calloc(1, sizeof(int));
+  fib1->digits = calloc(1, sizeof(int));
+  fib2->digits = calloc(1, sizeof(int));
+
+  // Returns the appropriate value for terms less than 2.
+  if (n == 0)
+  {
+    i->digits[0] = 0;
+    i->length = 1;
+
+    hugeDestroyer(fib1);
+    hugeDestroyer(fib2);
+
+    return i;
+  }
+  else if (n == 1)
+  {
+    i->digits[0] = 1;
+    i->length = 1;
+
+    hugeDestroyer(fib1);
+    hugeDestroyer(fib2);
+
+    return i;
+  }
+
+  // Sets the first two terms of the sequence.
+  fib1->digits[0] = 0;
+  fib1->length = 1;
+  fib2->digits[0] = 1;
+  fib2->length = 1;
+  
+  // Lopps through rest of Fibonacci sequence
+  for (k = 2; k <= n; k++)
+  {
+    i = hugeAdd(fib1, fib2);
+
+    hugeDestroyer(fib1);
+
+    // Stops the loop so fib2 can be released without also releasing i.
+    if (k == n)
+      break;
+    else
+    {
+      fib1 = fib2;
+      fib2 = i;
+    }
+  }
+
+  hugeDestroyer(fib2);
+
+  return i;
+}
