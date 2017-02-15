@@ -31,11 +31,11 @@ node *new_node(int data)
 {
 	node *n = malloc(sizeof(node));
 
-  if (n == NULL)
-  {
-    printf("Error: out of memory.\n");
-    return NULL;
-  }
+	if (n == NULL)
+	{
+	printf("Error: out of memory.\n");
+	return NULL;
+	}
 
 	n->data = data;
 	n->left = n->right = NULL;
